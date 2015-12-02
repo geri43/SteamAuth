@@ -138,31 +138,32 @@ namespace SteamAuth
             Regex confIDRegex = new Regex("data-confid=\"(\\d+)\"");
             Regex confKeyRegex = new Regex("data-key=\"(\\d+)\"");
             Regex confDescRegex = new Regex("<div>((Confirm|Trade with|Sell -) .+)</div>");
-
-            if (!(confIDRegex.IsMatch(response) && confKeyRegex.IsMatch(response) && confDescRegex.IsMatch(response)))
-            {
-                return new Confirmation[0];
-            }
-
-            MatchCollection confIDs = confIDRegex.Matches(response);
-            MatchCollection confKeys = confKeyRegex.Matches(response);
-            MatchCollection confDescs = confDescRegex.Matches(response);
-
             List<Confirmation> ret = new List<Confirmation>();
-            for (int i = 0; i < confIDs.Count; i++)
+            if (!String.IsNullOrEmpty(response))
             {
-                string confID = confIDs[i].Groups[1].Value;
-                string confKey = confKeys[i].Groups[1].Value;
-                string confDesc = confDescs[i].Groups[1].Value;
-                Confirmation conf = new Confirmation()
+                if (!(confIDRegex.IsMatch(response) && confKeyRegex.IsMatch(response) && confDescRegex.IsMatch(response)))
                 {
-                    ConfirmationDescription = confDesc,
-                    ConfirmationID = confID,
-                    ConfirmationKey = confKey
-                };
-                ret.Add(conf);
-            }
+                    return new Confirmation[0];
+                }
 
+                MatchCollection confIDs = confIDRegex.Matches(response);
+                MatchCollection confKeys = confKeyRegex.Matches(response);
+                MatchCollection confDescs = confDescRegex.Matches(response);
+
+                for (int i = 0; i < confIDs.Count; i++)
+                {
+                    string confID = confIDs[i].Groups[1].Value;
+                    string confKey = confKeys[i].Groups[1].Value;
+                    string confDesc = confDescs[i].Groups[1].Value;
+                    Confirmation conf = new Confirmation()
+                    {
+                        ConfirmationDescription = confDesc,
+                        ConfirmationID = confID,
+                        ConfirmationKey = confKey
+                    };
+                    ret.Add(conf);
+                }
+            }
             return ret.ToArray();
         }
 
